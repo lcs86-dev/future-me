@@ -104,7 +104,7 @@ export default function Home() {
                   </FormItem>
                 )}
               />
-              <div className="space-y-2">
+              <div>
                 {/* <Label>When do you see this future?</Label> */}
                 <div className="flex flex-col sm:flex-row gap-3">
                   {/* <FormField
@@ -163,7 +163,8 @@ export default function Home() {
                             value={field.value}
                             onChange={field.onChange}
                             min={new Date().toISOString().split("T")[0]}
-                            className="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                            // className="w-full p-2 border rounded-lg  text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="bg-gray-50 border h-10 leading-none text-sm border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                           />
                         </FormControl>
                       </FormItem>
@@ -178,7 +179,7 @@ export default function Home() {
                         <FormLabel>Time of day</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <div className="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
+                            {/* <div className="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
                               <svg
                                 className="w-4 h-4 text-gray-500 dark:text-gray-400"
                                 aria-hidden="true"
@@ -192,11 +193,11 @@ export default function Home() {
                                   clip-rule="evenodd"
                                 />
                               </svg>
-                            </div>
+                            </div> */}
                             <input
                               type="time"
                               id="time"
-                              className="bg-gray-50 border leading-none text-sm border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                              className="bg-gray-50 border h-10 leading-none text-sm border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                               value={field.value}
                               onChange={field.onChange}
                               required
