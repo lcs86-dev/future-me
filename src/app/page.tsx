@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -11,60 +11,53 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { PopoverTrigger } from "@radix-ui/react-popover";
-import {
-  ArrowLeft,
-  Calendar,
-  CalendarIcon,
-  Clock,
-  Image,
-  WalletMinimal,
-} from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, CalendarIcon, Image, WalletMinimal } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-// Time options
-const hours = Array.from({ length: 24 }, (_, i) =>
-  i.toString().padStart(2, "0")
-);
+const futureFormSchema = z.object({
+  vision: z.string().min(50, {
+    message: "Vision must be at least 50 characters.",
+  }),
+  date: z.date({
+    required_error: "A date of vision is required.",
+  }),
+  time: z.string().optional(),
+});
 
-const minutes = Array.from({ length: 60 }, (_, i) =>
-  i.toString().padStart(2, "0")
-);
+type FutureFormSchema = z.infer<typeof futureFormSchema>;
 
-const formatDate = (date: Date) => {
-  return date?.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-const TimeSelect = ({ value, onChange, options, placeholder }) => (
-  <select
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    className="w-full p-2 border rounded-lg appearance-none bg-background"
-  >
-    {options.map((option) => (
-      <option key={option} value={option}>
-        {option}
-      </option>
-    ))}
-  </select>
-);
+const defaultValues: Partial<FutureFormSchema> = {
+  vision: "",
+  date: new Date(),
+  time: new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(new Date()),
+}
 
 export default function Home() {
-  const form = useForm();
+  const form = useForm<FutureFormSchema>({
+    resolver: zodResolver(futureFormSchema),
+    defaultValues
+  });
 
   // UI state
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState("");
   const [timePopoverOpen, setTimePopoverOpen] = useState(false);
+
+  function onSubmit(data: FutureFormSchema) {
+    console.log(data);
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-4">
@@ -77,7 +70,7 @@ export default function Home() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
-            <h2>Write Your Vision</h2>
+            <p>Write Your Vision</p>
             <div className="flex items-center space-x-2">
               <WalletMinimal />
               <span>0 credits</span>
@@ -86,7 +79,7 @@ export default function Home() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="vision"
@@ -105,68 +98,42 @@ export default function Home() {
                 )}
               />
               <div>
-                {/* <Label>When do you see this future?</Label> */}
                 <div className="flex flex-col sm:flex-row gap-3">
-                  {/* <FormField
+                  <FormField
                     control={form.control}
                     name="date"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Select a future date</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
-                                type="button"
                                 variant={"outline"}
-                                className="w-full sm:w-[320px] justify-start text-left font-normal"
+                                className="w-[240px] pl-3 text-left font-normal"
                               >
-                                <Calendar />
-                                {formatDate(field.value)}
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a Date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent>
-                            <CalendarComponent
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) =>
-                                date < new Date()
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
                               }
                               initialFocus
                             />
                           </PopoverContent>
                         </Popover>
-                      </FormItem>
-                    )}
-                  /> */}
-                  {/* <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Select a future date *
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      
-                    </CardContent>
-                  </Card> */}
-                  <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select a future date</FormLabel>
-                        <FormControl>
-                          <input
-                            type="date"
-                            value={field.value}
-                            onChange={field.onChange}
-                            min={new Date().toISOString().split("T")[0]}
-                            // className="w-full p-2 border rounded-lg  text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
-                            className="bg-gray-50 border h-10 leading-none text-sm border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          />
-                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -178,31 +145,14 @@ export default function Home() {
                       <FormItem>
                         <FormLabel>Time of day</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            {/* <div className="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none">
-                              <svg
-                                className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                            </div> */}
-                            <input
-                              type="time"
-                              id="time"
-                              className="bg-gray-50 border h-10 leading-none text-sm border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                              value={field.value}
-                              onChange={field.onChange}
-                              required
-                            />
-                          </div>
+                          <input
+                            type="time"
+                            id="time"
+                            className="w-[240px] text-left font-normal bg-gray-50 border h-10 leading-none text-sm border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            value={field.value}
+                            onChange={field.onChange}
+                            required
+                          />
                         </FormControl>
                       </FormItem>
                     )}
