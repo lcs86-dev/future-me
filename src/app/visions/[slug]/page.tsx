@@ -93,11 +93,30 @@ export default function VisionDetail() {
     // event.preventDefault();
     if (newStep.trim()) {
       setActionSteps([
-        ...actionSteps,
         { id: Date.now(), text: newStep.trim(), completed: false },
+        ...actionSteps,
       ]);
       setNewStep("");
     }
+  };
+
+  const handleAddJournal = () => {
+    if (newJournalEntry.trim()) {
+      setJournalEntries([
+        {
+          id: Date.now(),
+          content: newJournalEntry.trimEnd(),
+          mood: selectedMood,
+          date: new Date().toLocaleString(),
+        },
+        ...journalEntries,
+      ]);
+      setNewJournalEntry("");
+    }
+  };
+
+  const handleDeleteJournal = (id: number) => {
+    setJournalEntries(journalEntries.filter((journal) => journal.id !== id));
   };
 
   const getMoodEmoji = (mood: string) => {
@@ -201,48 +220,22 @@ export default function VisionDetail() {
         </TabsList>
         <TabsContent value="action-steps">
           <Card>
-            <CardContent className="pt-6">
-              {actionSteps.map((step) => (
-                <div
-                  key={step.id}
-                  className="flex items-center justify-between gap-4 bg-gray-50 p-2 rounded-xl mb-2"
-                >
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      className="p-2 rounded-md hover:bg-gray-200 transition-colors focus:outline-none "
-                      onClick={() => handleToggleStep(step.id)}
-                    >
-                      <CheckCircle2
-                        className={`h-6 w-6 ${
-                          step.completed ? "text-green-500" : "text-gray-300"
-                        }`}
-                      />
-                      <span className="sr-only">
-                        {step.completed
-                          ? "Mark as incomplete"
-                          : "Mark as complete"}
-                      </span>
-                    </Button>
-                    <span
-                      className={`text-base ${
-                        step.completed ? "line-through" : ""
-                      }`}
-                    >
-                      {step.text}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteStep(step.id)}
-                  >
-                    <Trash2 className="h-5 w-5 text-destructive" />
-                    <span className="sr-only">Delete step</span>
-                  </Button>
-                </div>
-              ))}
-              <div className="flex w-full items-center space-x-2 mt-6">
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                <h4>Action Steps</h4>
+                {/* {actionSteps.length > 0 && (
+                  <span className="font-light text-sm text-muted-foreground">
+                    {actionSteps.filter((s) => s.completed).length} of{" "}
+                    {actionSteps.length} completed
+                  </span>
+                )} */}
+              </CardTitle>
+              <CardDescription>
+                Track your progress towards your vision
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex w-full items-center space-x-2 mb-6">
                 <Input
                   value={newStep}
                   onChange={(e) => setNewStep(e.target.value)}
@@ -252,39 +245,63 @@ export default function VisionDetail() {
                   Add
                 </Button>
               </div>
+              <div className="space-y-2">
+                {actionSteps.map((step) => (
+                  <div
+                    key={step.id}
+                    className="flex items-center justify-between gap-4 bg-gray-50 p-2 rounded-xl"
+                  >
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="ghost"
+                        className="p-2 rounded-md hover:bg-gray-200 transition-colors focus:outline-none "
+                        onClick={() => handleToggleStep(step.id)}
+                      >
+                        <CheckCircle2
+                          className={`h-6 w-6 ${
+                            step.completed ? "text-green-500" : "text-gray-300"
+                          }`}
+                        />
+                        <span className="sr-only">
+                          {step.completed
+                            ? "Mark as incomplete"
+                            : "Mark as complete"}
+                        </span>
+                      </Button>
+                      <span
+                        className={`text-base ${
+                          step.completed ? "line-through" : ""
+                        }`}
+                      >
+                        {step.text}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteStep(step.id)}
+                    >
+                      <Trash2 className="h-5 w-5 text-destructive" />
+                      <span className="sr-only">Delete step</span>
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="journal">
           <Card>
-            <CardContent className="pt-6">
-              {journalEntries.map((entry) => (
-                <div key={entry.id}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      {entry.date}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xl" title={entry.mood}>
-                        {getMoodEmoji(entry.mood)}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {entry.content}
-                  </p>
-                </div>
-              ))}
-              <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                <h4>Reflection Journal</h4>
+              </CardTitle>
+              <CardDescription>
+                Record your thoughts and progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6 bg-gray-50 p-4 rounded-lg">
                 <textarea
                   value={newJournalEntry}
                   onChange={(e) => setNewJournalEntry(e.target.value)}
@@ -321,7 +338,7 @@ export default function VisionDetail() {
                       Cancel
                     </button>
                     <button
-                      onClick={() => {}}
+                      onClick={handleAddJournal}
                       disabled={!newJournalEntry.trim() || !selectedMood}
                       className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600"
                     >
@@ -329,6 +346,38 @@ export default function VisionDetail() {
                     </button>
                   </div>
                 </div>
+              </div>
+              <div className="space-y-6">
+                {journalEntries.map((entry) => (
+                  <div key={entry.id}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                        {entry.date}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xl" title={entry.mood}>
+                          {getMoodEmoji(entry.mood)}
+                        </span>
+                        <div className="flex">
+                          {/* <Button variant="ghost" size="sm">
+                          <Pencil className="w-4 h-4" />
+                        </Button> */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteJournal(entry.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">
+                      {entry.content}
+                    </p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -343,10 +392,10 @@ export default function VisionDetail() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <p className="text-sm text-gray-500 italic">
+                {/* <p className="text-sm text-gray-500 italic">
                   Based on your vision and recent activities, here are some
                   tailored suggestions:
-                </p>
+                </p> */}
                 <div className="space-y-4">
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h4 className="text-lg font-semibold text-blue-700 mb-2">
